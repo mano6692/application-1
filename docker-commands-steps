@@ -1,0 +1,369 @@
+                                                             
+                                                            docker 
+   1.docker image          its like amazon machine image(ami)
+   2.docker container
+   3.docker file       instruction to create a image
+   4.docker network
+   5.docker volume
+   6.docker compose
+
+create ec2 instance with t2.medium and add port in security group all tcp and anywere ipv4   
+   
+                         
+                          docker installation commands
+   
+   sudo apt update       
+   sudo apt install docker.io
+   
+   
+   docker commands
+   
+   docker --version
+   docker info 
+   docker images or docker images ls     to check the image on docker
+   docker rmi --force nginx              to remove images from docker
+   docker pull nginx                     to downlaod image from docker hub
+   docker ps                             to check runinng containers
+   docker ps -a                          to check stopped and runinng container status
+   
+                      
+                          docker run commands
+     
+      docker run -itd ubuntu            to run ubuntu image as container
+      docker run -itd -p 81:80 nginx    to run ngnix images as container in detached mode with port 80 port forwarding
+      docker run -itd --name mycontainer-01 -p 82:80 nginx    to run nginx as image as container by giving name to the container as mycontainer-01 and did port forwarding 
+  
+                         docker remove commands
+                         
+                docker rm container-id                 to delete particular container
+                docker rm -f $(docker ps -aq)          to stop and remove all container 
+                docker rmi -f $(docker images -aq)     to remove all images in docker
+              
+ 
+                        docker start/stop commands
+  
+   docker stop container id     to stop container
+   docker start container id    to run the stopped container
+   
+   
+                                docker task manager commands
+                                
+                     
+   docker system df          to check container disk usage
+   docker stats d            to check the docker container cpu/memory usage
+  
+                     
+   docker exec -it container id /bin/sh      to enter container command prompt to make changes in a container
+    docker commit container-id               to save the customization to the container
+    
+ 
+                                  container logs commands
+                                  
+                      
+   docker logs container id             to check container logs
+   docker logs -f container id          to check live logs
+  
+       
+                                   docker copy commands
+                                   
+                               
+   docker cp file.txt container-id:/             to copy file from server to container 
+   docker cp CONTAINER:/var/logs/ /tmp/app_logs  to copy file from container to server
+   
+                                
+                                   docker network commands
+   
+    
+    Command                                                      Description
+    	               
+    	              
+   docker network connect network-name container-id	        Connect a container to a network
+   docker network create network-1	                        Create a network named network-1
+   docker network disconnect  	                                Disconnect a container from a network
+   docker network inspect 	                                Display detailed information on one or more networks
+   docker network ls 	                                        List networks
+   docker network prune 	                                Remove all unused networks
+   docker network rm 	                                        Remove one or more networks
+   docker run -d --network=net-1 nginx                          to run / attach nginx container in network-1
+   docker inspect container id                                  to check the container details like network attached to container volume attached
+   docker insepct netowrk  network-name                         to check details of the 
+   
+   
+                                  docker volume commands
+                              
+   docker create volume log-dir                                            to create volume name log-dir
+   docker volume rm log-dir                                                to delete the log-dir volume
+   docker volume ls                                                        to see the availble volume
+   docker inspect volume log-dir                                           to get details of the volume
+   docker run -itd --mount source=log-dir,destination=/data ubuntu         to mount the log-dir directory to ubuntu container and to create a /data in ubnutu
+   
+   
+   
+   To create a new Docker Volume, you can use the Volume Create Command.
+
+
+#sudo docker volume create geeksforgeeks
+   
+   To get the details of the Volumes you have created , you can use the Volume Inspect Command.
+
+#sudo docker volume inspect geeksforgeeks
+
+After creating the Volume, the next step is to mount the Volume to Docker Containers. We will create a Docker Container with the Ubuntu base Image and mount the geeksforgeeks Volume to that Container using the -v flag.
+
+#sudo docker run -it -v geeksforgeeks:/shared-volume --name my-container-01 ubuntu
+
+The above command mounts the geeksforgeeks volume to a directory called shared-volume inside the Docker Container named my-container-01.
+
+Create a file inside the Docker Volume
+ Inside the bash of the Container, create a new file and add some content.
+
+ls
+cd /shared-volume
+echo “GeeksforGeeks” > geeksforgeeks.txt
+ls
+exit
+
+Create another Docker Container called my-container-02 and mount the same Docker Volume called geeksforgeeks inside the Container.
+
+#sudo docker run -it -v geeksforgeeks:/shared-volume --name my-container-02 ubuntu
+
+
+                         mounting a folder as volume in a container to backup the container data
+
+
+httpd container index.html located in /usr/local/apache2/htdocs/index.html
+
+now im going to backup the container index.html by creating a directory nd mounting inside container
+
+#mkdir html       now html directory is created
+to know the location of html enter pwd command to know the location i created html directory inside root directory 
+so the location is /root/html
+
+#docker run -itd -p 85:80 -v "/root/html:/usr/local/apache2/htdocs/" httpd
+
+-v is use to mount the server html directory to container index.html location 
+now container files and html directory is always in sync even if container is deleted we can get the data of the container
+in html directory
+
+ #docker pull httpd       now httpd images is downloaded
+ #docker images ls         to see the httpd is availbel in local image
+ #docker run -itd --name web-server-1 -p 85:80 -v "/root/html:/usr/local/apache2/htdocs" httpd
+ #docker ps     to see the status of the container we launched 
+ 
+
+
+
+
+
+   
+                              docker file  
+                       
+                       
+                       docker file for creating a webb-application image
+      to create web application we need os,webserver applicatioln like apache2 or nignix and                  
+     index.html webpage
+    
+   step 1   create index.html
+     
+     vi index.html
+     
+     hello world
+     :wq
+     
+     step 2 now create docker file 
+                      
+                       vi Dockerfile
+ FROM ubuntu
+
+ RUN apt update  && apt install -y apache2
+
+ RUN rm -rf /var/www/html/
+
+ copy index.html /var/www/html/
+
+ EXPOSE 80
+
+ CMD apachectl -D FOREGROUND
+
+:wq
+
+
+ step 3 now build docker file
+ 
+ docker build -t image-name .
+ or 
+ docker build -t image-name /java-file(were the docker file and image required files are present)
+ 
+ and docker images to check the image we bulild available or not
+  
+  docker run -itd --name mycontnainer-01 -p 8081:8080 image-name
+  
+  docker ps 
+  
+  
+                        
+                                 
+                                 
+                                          Docker compose 
+                                          
+                          install docker compose
+                          
+                      #sudo apt-get install docker-compose-plugin
+                      
+                      how to create docker compose file
+                      
+                      #vi docker-compose.yaml   or vi docker-compose.yml
+                      
+                      version: '3'
+
+			services:
+			  javaapp:
+			    image: mixaverross88/dockerize_java_mysql_example_project
+			    ports:
+			      - 8083:8080
+			  mysqlapp:
+			    image: mixaverross88/dockerize_java_mysql_example_project_mysql
+			    environment:
+			      - MYSQL_ROOT_PASSWORD=supersecret 
+			    ports:
+     			  - 3311:3306
+                      
+                      :wq
+                      
+                      #docker compose up -d   to build docker compose and start the container 
+                      #docker compose down        to stop the docker compose container
+                      
+                     
+                                      
+                       this is another example of docker compose 
+                       which consist of mounting volumes and setting name for the conntainer
+                       before we run the docker compsoe file create a directory
+                       
+	                       #cd /home/ubuntu
+	                       #mkdir backup-webserver-1
+                               #cd backup-webserver-1 
+                               
+                               vi index.html 
+                               hi this isa sample docker-compose demo
+                               :wq
+                       
+                                     vi docker-compose.yaml
+                                     
+                                     version: '3.9'
+                                     services:
+                                     apache:
+                                     image: httpd:latest
+                                     container_name: my-webserver-1
+                                     ports:
+                                     - '8080:80'
+                                     volumes:
+                                     - ./backup-webserver-1:/usr/local/apache2/htdocs
+                                     
+                                     
+                                     :wq
+                                     
+                                     docker compose up -d
+                                     docker-compose ps 
+                                     docker-compose ps -a
+                                     
+                                     
+                                     
+                                     scenario 1 monitoring team asking for httpd container access for logs but we cant give access to our server our running container 
+                                     
+                                     so we gonig to create a dummy container with ssh-access and mount the logs of httpd container in dummy container with read only mode
+                                     
+                                     step 1 to create a container with ssh-access
+                                     
+                                        #vi Dockerfile
+                                                                                					
+					FROM ubuntu:16.04
+					
+					RUN apt-get update && apt-get install -y openssh-server
+					RUN mkdir /var/run/sshd
+					RUN echo 'root:root123' | chpasswd
+					RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+					RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+					EXPOSE 22
+					CMD ["/usr/sbin/sshd", "-D"]
+					
+					:wq
+					
+					#docker build -t ubuntuwith-ssh.img .       now we build the ssh container image
+					
+					step 2 lauch a httpd ccontainer by creating  /usr/local apache2/logs as a seperate volume
+	 				
+	 				#docker run -itd --name mywebserver -p 80:80 -v "/usr/local/apache2/logs" httpd
+			
+					we launched a httpd container with logs as sepreate volume
+					
+					step 3 now lauch an ssh container by mounting httpd log folder as a volume
+					
+					docker run -itd -p 2323:22 --name ssh-container --volumes-from mywebserver:ro ubuntuwith-ssh.img
+					
+					now we launched ssh container with httpd container logs mounted
+			
+					
+					
+					                       docker link
+					                        
+		(use to communicate between containers usually containers are isolated and they cant communicate that properly)
+							
+							example of docker link
+								
+						launching mysql in a container
+						
+						docker pull mysql
+						
+						docker images
+						
+						docker run -itd -e MYSQL_ROOT_PASSWORD=mano123 --name mydb-1 mysql
+						
+						docker ps -a	
+						
+						
+						linking mysql container with word press container
+						
+						docker pull wordpress
+						
+						docker run -itd --name mywebserver --link mydb1:mysql -p 80:80 wordpress
+						
+						now wordpress container and mysql contAINER are linked and they can communicate
+						
+						
+						
+						
+			
+			
+			
+			
+					
+					
+                         
+                                
+                                      
+   
+  
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+    
+   
